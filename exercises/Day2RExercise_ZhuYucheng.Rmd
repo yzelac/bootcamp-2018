@@ -1,0 +1,150 @@
+---
+title: "R Day 2"
+author: "Yucheng Zhu"
+date: "9/18/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+here::here("data","gapminder5.csv")
+
+gapminder <- read.csv(here::here("data","gapminder5.csv"))
+head(gapminder)
+str(gapminder)
+```
+## Converting factors to characters
+```{r}
+gapminder$country <- as.character(gapminder$country)
+gapminder$continent <- as.character(gapminder$continent)
+str(gapminder)
+
+mean(gapminder$lifeExp[gapminder$country == "Afghanistan"])
+mean(gapminder$lifeExp[gapminder$country == "Albania"])
+
+```
+```{r}
+obs <- 1:nrow(gapminder)
+for (i in obs)
+  {
+  gapminder[i,"gdp"] <- gapminder[i,"pop"] * gapminder[i,"gdpPercap"]
+}
+```
+
+## Creating logged variables with a for loop
+```{r}
+for (i in obs)
+{
+  gapminder[i,"log_gdpPercap"] <- log(gapminder[i,"gdpPercap"])
+  gapminder[i,"log_pop"] <- log(gapminder[i,"pop"])
+}
+head(gapminder)
+
+
+```
+```{r}
+years <- unique(gapminder$year)
+
+for (i in years)
+{
+  mean_le <- mean(gapminder$lifeExp[gapminder$year==i],
+                  na.rm = T)
+  print(paste0(i,": ", mean_le))
+}
+
+```
+
+```{r}
+conts <- unique(gapminder$continent)
+for (i in conts)
+{
+  mean_le <- mean(gapminder$lifeExp[gapminder$continent == i],
+                  na.rm = T)
+  print(paste0(i, ":", mean_le))
+}
+```
+
+```{r}
+for (i in conts)
+{
+  print(paste0("Continent:", i))
+  for (j in years)
+  {
+    sd_le <- sd(gapminder$lifeExp[gapminder$continent == i &
+                                    gapminder$year == j],
+                na.rm = T)
+      print(paste0(j, ":", sd_le))
+  }
+}
+```
+
+
+```{r}
+i <- 1987
+
+while (i <= 2002)
+{
+  sd_le <- sd(gapminder$lifeExp[gapminder$year == i])
+  print(paste0(i,": ", sd_le))
+  i <- i+5
+}
+
+```
+
+
+
+```{r}
+threshold <- 1987
+
+for (i in unique(gapminder$year))
+{
+  tmp <- mean(gapminder$lifeExp[gapminder$year == i])
+  
+  if ( i >= threshold)
+  {
+    print(paste("Mean Life Exp in", i, "is", tmp))
+  }
+  else
+  {
+    print(paste("Condition not meet"))
+  }
+}
+
+```
+
+
+```{r}
+
+report_stats <-
+  function(df, variable, continent)
+  {
+    var <- gapminder[[variable]][gapminder$continent == continent]
+    min_le <- min(var)
+    max_le <- max(var)
+    mean_le <- mean(var)
+    median_le <- median(var)
+    cat("continent:", continent,
+        "\nMin LE:", min_le,
+        "\nMax LE:", max_le,
+        "\nMean LE:", mean_le,
+        "\nMedian LE:", median_le)
+  }
+report_stats(gapminder, "lifeExp", "Asia")
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
