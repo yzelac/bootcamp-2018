@@ -1,0 +1,118 @@
+---
+title: "Day 3 ggplot"
+author: "Yucheng Zhu"
+date: "9/19/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source(here::here("data/day3_objects.R"))
+```
+```{r}
+ggplot(data=gapminder07) +
+  geom_point(mapping = aes (x = gdpPercap, y = lifeExp)) +
+  labs(title = "Relationship b/w le and GDP per cap in 2007",
+       x = "GDP per cap", y = "Life Exp")
+```
+
+## EX1
+```{r}
+ggplot(gapminder07) +
+  geom_point(mapping = aes (x = log(pop), y = log(gdpPercap))) +
+  labs(title = "Relationship b/w nl of population and gdp per cap",
+       x = "NL pop", y = "NL gdp Per cap")
+
+
+```
+
+## Energy generated over time
+```{r}
+long_gen %>%
+  group_by(datetime) %>%
+  summarise(output=sum(output)) %>%
+  ggplot() +
+  geom_col(aes(x=datetime, y=output))+
+  labs(title = "title", x="hour", y="output")
+
+```
+
+## EX2
+```{r}
+head(long_gen)
+
+long_gen %>%
+  group_by(datetime) %>%
+  filter(source %in% c("large_hydro","small_hydro")) %>%
+  summarise(output=sum(output)) %>%
+  ggplot() +
+  geom_col(aes(x=datetime, y=output))+
+  labs(title = "title", x="hour", y="output")
+
+generation %>% 
+  mutate(hydro=large_hydro+small_hydro) %>%
+  ggplot() + 
+  geom_col(aes(x=datetime, y=hydro)) + 
+  labs(title="Total hydro power generated, by hour", x="Hour", y="Output")
+```
+
+## EX 3
+```{r}
+long_gen %>%
+  group_by(source) %>%
+  summarise(output=sum(output)) %>%
+  ggplot() +
+  geom_col(aes(x=source, y=output), fill = "darkred") +
+  geom_hline(aes(yintercept = mean(output))) +
+  labs(title="total output per source", x="Source", y="Output")
+```
+
+## EX4
+
+```{r}
+long_gen %>%
+  group_by(datetime) %>%
+  filter(source %in% c("wind","solar","geothermal")) %>%
+  ggplot() +
+  geom_line(aes(x=datetime, y=output, group=source, col=source), size=1.5)+
+  scale_color_brewer(palette="Accent", name="Energy source") +
+  labs(title="Wind vs. Solar vs. Geothermal generation", subtitle="Hourly data from September 3-9, 2018", x="Hour", y="Output (MW)")
+  
+
+```
+
+## EX5
+```{r}
+long_merged_energy %>% 
+  mutate(hour=lubridate::hour(datetime)) %>% 
+  group_by(hour,source) %>%
+  summarise(output=sum(output)) %>% 
+  ggplot()+
+  geom_area(aes(x=hour, y=output, fill=factor(source))) +
+    scale_fill_brewer(palette="Set3", name="Source") +
+    labs(title="avg hourly output by source",x="hour",y="output") +
+    theme_bw()
+
+
+```
+## EX6
+
+```{r}
+long_gen %>% 
+  rename(type = source) %>%
+  merge(regroup, by = "type") %>%
+  ggplot() + 
+  geom_line(aes(x=datetime, y=output, group=group, col=group), size=1) + 
+  facet_wrap(~type, scales = "free") + 
+  labs(title="Generation over time, by energy source", subtitle="Hourly data from September 3-9, 2018", x="Hour", y="Output (MW)")
+
+```
+
+
+
+
+
+

@@ -146,7 +146,7 @@ merged_energy %>%
 long_merged_energy %>%
   filter(source %in% c("large_hydro","small_hydro", "biogas","biomass")) %>%
     ## filter to choose rows
-    ## %in %
+    ## %in%
   group_by(source) %>%
   summarise(mean_usage = mean(usage, na.rm = T))
 
